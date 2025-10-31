@@ -19,12 +19,12 @@ const logAction = (creditBatchId, auditorId, action, reason = null) => {
     };
     auditLogs.push(newLog);
     
+    // Log para fins de simulação/debugging
     console.log(`[AUDIT LOG] Ação '${action}' registrada por ${auditorId} no lote ${creditBatchId}`);
     return newLog;
 };
 
 module.exports = {
     logAction,
-    // Em um ambiente real, teríamos findLogsByCredit para exibir no frontend
     findLogsByCredit: (creditBatchId) => auditLogs.filter(log => log.credit_batch_id === creditBatchId)
 };

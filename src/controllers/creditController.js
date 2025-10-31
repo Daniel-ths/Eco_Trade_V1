@@ -1,7 +1,7 @@
-// src/controllers/creditController.js (Atualização do handler updateCreditStatus)
+// src/controllers/creditController.js (Atualização para incluir Auditoria)
 
 const Credit = require('../models/Credit');
-const AuditLog = require('../models/AuditLog'); // Novo import
+const AuditLog = require('../models/AuditLog'); // 💡 NOVO: Importa o módulo de Log
 
 /**
  * Implementa: PATCH /credits/:id/status (Decisão do Auditor)
@@ -30,7 +30,7 @@ exports.updateCreditStatus = (req, res) => {
         return res.status(404).json({ message: 'Crédito não encontrado.' });
     }
 
-    // 2. REGISTRAR AÇÃO NO LOG DE AUDITORIA (Imutabilidade)
+    // 2. REGISTRA A AÇÃO NO LOG DE AUDITORIA (FINALIZAÇÃO DO REQUISITO)
     AuditLog.logAction(id, auditorId, new_status, rejection_reason);
 
     return res.status(200).json({
