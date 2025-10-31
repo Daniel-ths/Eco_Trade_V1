@@ -1,31 +1,36 @@
-// src/controllers/creditController.js (Carbon Credits Service - Atualizado)
+// src/controllers/creditController.js (Atualização do handler updateCreditStatus)
 
 const Credit = require('../models/Credit');
-const AuditLog = require('../models/AuditLog'); // Importação do nosso novo módulo de logs
+const AuditLog = require('../models/AuditLog'); // Novo import
 
-// Implementa: PATCH /credits/:id/status (Decisão do Auditor)
+/**
+ * Implementa: PATCH /credits/:id/status (Decisão do Auditor)
+ * Atualiza o status do crédito e registra a ação no log de auditoria.
+ */
 exports.updateCreditStatus = (req, res) => {
     const { id } = req.params;
     const { new_status, rejection_reason } = req.body;
     
-    // O ID do administrador vem do token JWT (simulado)
+    // Obtém o ID do administrador do token JWT (simulado)
     const auditorId = req.user.id; 
 
+    // Validação
     if (new_status !== 'APPROVED' && new_status !== 'REJECTED') {
-        return res.status(400).json({ message: 'Novo status inválido.' });
+        return res.status(400).json({ message: 'Novo status inválido. Use APPROVED ou REJECTED.' });
     }
 
     if (new_status === 'REJECTED' && !rejection_reason) {
         return res.status(400).json({ message: 'O motivo da rejeição é obrigatório.' });
     }
 
+    // 1. Atualiza o status no modelo principal de créditos
     const updatedCredit = Credit.updateStatus(id, new_status, rejection_reason);
 
     if (!updatedCredit) {
         return res.status(404).json({ message: 'Crédito não encontrado.' });
     }
 
-    // 💡 REGISTRAR AÇÃO NO LOG DE AUDITORIA 💡
+    // 2. REGISTRAR AÇÃO NO LOG DE AUDITORIA (Imutabilidade)
     AuditLog.logAction(id, auditorId, new_status, rejection_reason);
 
     return res.status(200).json({

@@ -1,6 +1,7 @@
 // src/pages/PublicHistoryPage.tsx
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Importa useNavigate para o botão voltar
 
 // Importando componentes do MUI
 import {
@@ -14,8 +15,10 @@ import {
   TableHead,
   TableRow,
   Chip,
-  Alert
+  Alert,
+  Button // Importa Button
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // Importa o ícone de voltar
 
 // --- SIMULAÇÃO DE DADOS PÚBLICOS ---
 const MOCK_PUBLIC_TRANSACTIONS = [
@@ -29,13 +32,22 @@ const formatCurrency = (value: number) => {
 };
 
 export const PublicHistoryPage: React.FC = () => {
-    // Em produção, aqui faríamos uma chamada: 
-    // const [transactions, setTransactions] = useQuery('publicTransactions', () => fetch('/transactions/public'));
+    const navigate = useNavigate(); // Hook para navegação programática
 
     const transactions = MOCK_PUBLIC_TRANSACTIONS;
 
     return (
         <Box sx={{ flexGrow: 1 }}>
+            {/* Botão Voltar */}
+            <Button
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={() => navigate(-1)} // Volta para a página anterior no histórico
+                sx={{ mb: 3 }}
+            >
+                Voltar
+            </Button>
+
             <Typography variant="h4" component="h1" gutterBottom>
                 Histórico Público de Transações
             </Typography>
@@ -57,23 +69,31 @@ export const PublicHistoryPage: React.FC = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {transactions.map((tx, index) => (
-                                <TableRow hover key={index}>
-                                    <TableCell>{tx.date}</TableCell>
-                                    <TableCell>
-                                        <Chip 
-                                            label={tx.type} 
-                                            size="small" 
-                                            color={tx.type.includes('Reflorestamento') ? 'success' : 'primary'}
-                                        />
+                            {transactions.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} align="center">
+                                        Nenhuma transação pública encontrada.
                                     </TableCell>
-                                    <TableCell align="right">{tx.amount}</TableCell>
-                                    <TableCell align="right" sx={{ fontWeight: 600 }}>
-                                        {formatCurrency(tx.price)}
-                                    </TableCell>
-                                    <TableCell>{tx.region}</TableCell>
                                 </TableRow>
-                            ))}
+                            ) : (
+                                transactions.map((tx, index) => (
+                                    <TableRow hover key={index}>
+                                        <TableCell>{tx.date}</TableCell>
+                                        <TableCell>
+                                            <Chip 
+                                                label={tx.type} 
+                                                size="small" 
+                                                color={tx.type.includes('Reflorestamento') ? 'success' : 'primary'}
+                                            />
+                                        </TableCell>
+                                        <TableCell align="right">{tx.amount}</TableCell>
+                                        <TableCell align="right" sx={{ fontWeight: 600 }}>
+                                            {formatCurrency(tx.price)}
+                                        </TableCell>
+                                        <TableCell>{tx.region}</TableCell>
+                                    </TableRow>
+                                ))
+                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>
